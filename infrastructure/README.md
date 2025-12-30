@@ -23,6 +23,11 @@ Permet au cluster de créer dynamiquement des volumes persistants (PVC) sur le N
     *   **Ports non privilégiés** : ✅ **Cocher "Permettre les connexions à partir des ports non privilégiés (>1024)"**.
         *   *Pourquoi ?* K3s et certains clients NFS utilisent des ports aléatoires élevés. Sans ça, le montage échoue.
 
+**Prérequis Client (Serveur K3s) :**
+Le paquet `nfs-common` doit être installé sur tous les nœuds du cluster.
+*   *Symptôme si absent* : Le pod reste en `ContainerCreating` avec l'erreur `mount failed: exit status 32 ... bad option`.
+*   *Solution* : Installé automatiquement via le playbook Ansible (`sre-lab-provisioning`).
+
 **Utilisation :**
 Une fois déployé, une `StorageClass` nommée `nfs-client` est créée et définie par défaut.
 Tout PVC sans classe spécifique utilisera le NAS.
