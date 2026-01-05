@@ -1,11 +1,3 @@
-apiVersion: traefik.io/v1alpha1
-kind: ServersTransport
-metadata:
-  name: argocd-transport
-  namespace: argocd
-spec:
-  insecureSkipVerify: true
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -14,11 +6,6 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: selfsigned-issuer
     traefik.ingress.kubernetes.io/router.tls: "true"
-    # ArgoCD parle en HTTPS par défaut, on dit à Traefik de faire du passthrough ou de re-chiffrer
-    # Ici on utilise le port HTTP du service qui redirige souvent, ou le port HTTPS.
-    # Le plus simple avec ArgoCD par défaut est de dire à Traefik que le backend est en HTTPS (insecure skip verify souvent nécessaire si cert auto-signé interne)
-    traefik.ingress.kubernetes.io/service.serversscheme: https
-    traefik.ingress.kubernetes.io/service.serverstransport: argocd-transport@kubernetescrd
 spec:
   rules:
   - host: argocd.local
@@ -30,4 +17,4 @@ spec:
           service:
             name: argocd-server
             port:
-              number: 443
+              number: 80
