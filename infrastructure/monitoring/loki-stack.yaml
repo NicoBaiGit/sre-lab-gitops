@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: loki-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: loki-stack
+    repoURL: https://grafana.github.io/helm-charts
+    targetRevision: 2.10.2
+    helm:
+      values: |
+        loki:
+          config:
+            compactor:
+              retention_enabled: true
+            limits_config:
+              retention_period: 48h
+          persistence:
+            enabled: true
+            storageClassName: nfs-client
+            size: 5Gi
+        promtail:
+          enabled: false # On utilise Allo à la place
+        alloy:
+          enabled: true
+          config: |
+            logging {
+              level = "info"
+              format = "logfmt"
+            }
+            
+            loki.write "default" {
+              endpoint {
+                url = "http://loki:3100/loki/api/v1/push"
+              }
+            }
+
+            discovery.kubernetes "pods" {
+              role = "pod"
+            }
+
+            loki.source.kubernetes "pods" {
+              targets    = discovery.kubernetes.pods.targets
+              forward_to = [loki.write.default.receiver]
+            }
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: vault
+    repoURL: https://helm.releases.hashicorp.com
+    targetRevision: 0.27.0
+    helm:
+      values: |
+        server:
+          dataStorage:
+            enabled: true
+            size: 2Gi
+            storageClass: nfs-client
+          standalone:
+            enabled: true
+        ui:
+          enabled: true
+          serviceType: LoadBalancer
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: security
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

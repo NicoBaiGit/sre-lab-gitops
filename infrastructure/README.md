@@ -32,6 +32,11 @@ Le paquet `nfs-common` doit être installé sur tous les nœuds du cluster.
 Une fois déployé, une `StorageClass` nommée `nfs-client` est créée et définie par défaut.
 Tout PVC sans classe spécifique utilisera le NAS.
 
+> **Note sur la StorageClass par défaut** :
+> K3s installe par défaut `local-path` (stockage sur le disque du serveur).
+> Pour éviter les conflits, nous avons désactivé `local-path` comme classe par défaut afin que `nfs-client` soit le seul choix implicite.
+> Commande utilisée : `kubectl patch storageclass local-path -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"false"}}}'`
+
 ```yaml
 kind: PersistentVolumeClaim
 apiVersion: v1
