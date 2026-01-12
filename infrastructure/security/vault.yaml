@@ -20,6 +20,10 @@ spec:
             storageClass: nfs-client
           standalone:
             enabled: true
+          ingress:
+            enabled: true
+            hosts:
+              - host: vault.local
         ui:
           enabled: true
           serviceType: LoadBalancer
